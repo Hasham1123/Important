@@ -45,19 +45,70 @@
       position: fixed;
       transition: all 0.3s ease;
     }
+    #hiddenForm {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>“Everything’s good between us, right?” </h1>
+    <h1>Everything's good between us, right?</h1>
     <div class="button-container">
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </div>
   </div>
+
+  <!-- Hidden form for sending emails -->
+  <form id="hiddenForm" action="https://formsubmit.co/YOUR_EMAIL@example.com" method="POST">
+    <input type="hidden" name="_subject" id="emailSubject">
+    <input type="hidden" name="message" id="emailMessage">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_template" value="box">
+  </form>
+
   <script>
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
+    const hiddenForm = document.getElementById("hiddenForm");
+    const emailSubject = document.getElementById("emailSubject");
+    const emailMessage = document.getElementById("emailMessage");
+    
+    // Function to send email notification
+    function sendEmail(subject, message) {
+      emailSubject.value = subject;
+      emailMessage.value = message;
+      
+      // Create a temporary form to send without redirect
+      const tempForm = document.createElement('form');
+      tempForm.action = hiddenForm.action;
+      tempForm.method = 'POST';
+      tempForm.style.display = 'none';
+      
+      // Copy all hidden inputs
+      const inputs = hiddenForm.querySelectorAll('input');
+      inputs.forEach(input => {
+        const newInput = document.createElement('input');
+        newInput.type = 'hidden';
+        newInput.name = input.name;
+        newInput.value = input.value;
+        tempForm.appendChild(newInput);
+      });
+      
+      // Add to page, submit, and remove
+      document.body.appendChild(tempForm);
+      tempForm.submit();
+      setTimeout(() => document.body.removeChild(tempForm), 100);
+    }
+    
+    // Send notification when page loads
+    window.addEventListener('load', () => {
+      const now = new Date().toLocaleString();
+      sendEmail(
+        '🔔 Website Opened!', 
+        `Someone opened your "Everything's good between us?" website at ${now}`
+      );
+    });
     
     // Position the No button initially next to Yes button
     function positionNoButton() {
@@ -69,6 +120,8 @@
     positionNoButton();
     window.addEventListener('resize', positionNoButton);
     
+    let noAttempts = 0;
+    
     function moveButton() {
       const maxX = window.innerWidth - noBtn.offsetWidth - 10;
       const maxY = window.innerHeight - noBtn.offsetHeight - 10;
@@ -78,12 +131,22 @@
       
       noBtn.style.left = `${x}px`;
       noBtn.style.top = `${y}px`;
+      
+      // Send email on first attempt to click No
+      noAttempts++;
+      if (noAttempts === 1) {
+        const now = new Date().toLocaleString();
+        sendEmail(
+          '😢 They tried to click NO!', 
+          `Someone tried to click the "No" button at ${now}. But don't worry, they can't actually click it! 😊`
+        );
+      }
     }
     
     // For desktop: mouseover
     noBtn.addEventListener("mouseover", moveButton);
     
-    // For mobile: touchstart (fires before click on mobile)
+    // For mobile: touchstart
     noBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
       moveButton();
@@ -101,9 +164,18 @@
       moveButton();
     });
     
-    // Yes button - redirect to happy.html
+    // Yes button - send notification and redirect
     yesBtn.addEventListener("click", () => {
-      window.location.href = "happy.html";
+      const now = new Date().toLocaleString();
+      sendEmail(
+        '💚 YES! Everything is good!', 
+        `Someone clicked "Yes" at ${now}! 🎉💕`
+      );
+      
+      // Small delay to ensure email sends before redirect
+      setTimeout(() => {
+        window.location.href = "happy.html";
+      }, 1000);
     });
   </script>
 </body>
