@@ -45,9 +45,6 @@
       position: fixed;
       transition: all 0.3s ease;
     }
-    #hiddenForm {
-      display: none;
-    }
   </style>
 </head>
 <body>
@@ -59,54 +56,69 @@
     </div>
   </div>
 
-  <!-- Hidden form for sending emails -->
-  <form id="hiddenForm" action="https://formsubmit.co/hashamkiani4@gmail.com" method="POST">
-    <input type="hidden" name="_subject" id="emailSubject">
-    <input type="hidden" name="message" id="emailMessage">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_template" value="box">
-  </form>
-
   <script>
+    // REPLACE WITH YOUR EMAIL
+    const YOUR_EMAIL = "hashamkiani4@gmail.com";
+    
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
-    const hiddenForm = document.getElementById("hiddenForm");
-    const emailSubject = document.getElementById("emailSubject");
-    const emailMessage = document.getElementById("emailMessage");
     
-    // Function to send email notification
-    function sendEmail(subject, message) {
-      emailSubject.value = subject;
-      emailMessage.value = message;
+    // Function to send email notification using fetch (no redirect)
+    async function sendEmail(subject, message) {
+      const formData = new FormData();
+      formData.append('_subject', subject);
+      formData.append('message', message);
+      formData.append('_captcha', 'false');
+      formData.append('_template', 'box');
+      formData.append('_next', window.location.href); // Prevents redirect
       
-      // Create a temporary form to send without redirect
-      const tempForm = document.createElement('form');
-      tempForm.action = hiddenForm.action;
-      tempForm.method = 'POST';
-      tempForm.style.display = 'none';
-      
-      // Copy all hidden inputs
-      const inputs = hiddenForm.querySelectorAll('input');
-      inputs.forEach(input => {
-        const newInput = document.createElement('input');
-        newInput.type = 'hidden';
-        newInput.name = input.name;
-        newInput.value = input.value;
-        tempForm.appendChild(newInput);
-      });
-      
-      // Add to page, submit, and remove
-      document.body.appendChild(tempForm);
-      tempForm.submit();
-      setTimeout(() => document.body.removeChild(tempForm), 100);
+      try {
+        // Using fetch in no-cors mode to avoid redirect
+        await fetch(`https://formsubmit.co/ajax/${YOUR_EMAIL}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            _subject: subject,
+            message: message,
+            _captcha: false,
+            _template: 'box'
+          })
+        });
+      } catch (error) {
+        console.log("Email sent (or failed silently):", error);
+      }
     }
+    
+    // Generate a simple user session ID
+    function getUserId() {
+      let userId = localStorage.getItem('userId');
+      if (!userId) {
+        userId = 'User_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('userId', userId);
+      }
+      return userId;
+    }
+    
+    // Track visit count
+    function getVisitCount() {
+      let count = parseInt(localStorage.getItem('visitCount') || '0');
+      count++;
+      localStorage.setItem('visitCount', count);
+      return count;
+    }
+    
+    const userId = getUserId();
+    const visitCount = getVisitCount();
     
     // Send notification when page loads
     window.addEventListener('load', () => {
       const now = new Date().toLocaleString();
       sendEmail(
         '🔔 Website Opened!', 
-        `Someone opened your "Everything's good between us?" website at ${now}`
+        `${userId} opened your website at ${now}\nVisit #${visitCount} from this person`
       );
     });
     
@@ -137,8 +149,8 @@
       if (noAttempts === 1) {
         const now = new Date().toLocaleString();
         sendEmail(
-          '😢 They tried to click NO!', 
-          `Someone tried to click the "No" button at ${now}. But don't worry, they can't actually click it! 😊`
+          '😢 They tried to choose NO!', 
+          `${userId} tried to click "No" at ${now}\nChoice: NO (attempted)\nVisit #${visitCount}\n\nBut don't worry, they can't actually click it! 😊`
         );
       }
     }
@@ -168,8 +180,8 @@
     yesBtn.addEventListener("click", () => {
       const now = new Date().toLocaleString();
       sendEmail(
-        '💚 YES! Everything is good!', 
-        `Someone clicked "Yes" at ${now}! 🎉💕`
+        '💚 YES! They chose YES!', 
+        `${userId} clicked "Yes" at ${now}\nChoice: YES ✓\nVisit #${visitCount}\n\nEverything is good! 🎉💕`
       );
       
       // Small delay to ensure email sends before redirect
