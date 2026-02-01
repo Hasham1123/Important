@@ -49,78 +49,15 @@
 </head>
 <body>
   <div class="container">
-    <h1>Everything's good between us, right?</h1>
+    <h1>Do you like me? 😺</h1>
     <div class="button-container">
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </div>
   </div>
-
   <script>
-    // REPLACE WITH YOUR EMAIL
-    const YOUR_EMAIL = "hashamkiani4@gmail.com";
-    
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
-    
-    // Function to send email notification using fetch (no redirect)
-    async function sendEmail(subject, message) {
-      const formData = new FormData();
-      formData.append('_subject', subject);
-      formData.append('message', message);
-      formData.append('_captcha', 'false');
-      formData.append('_template', 'box');
-      formData.append('_next', window.location.href); // Prevents redirect
-      
-      try {
-        // Using fetch in no-cors mode to avoid redirect
-        await fetch(`https://formsubmit.co/ajax/${YOUR_EMAIL}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            _subject: subject,
-            message: message,
-            _captcha: false,
-            _template: 'box'
-          })
-        });
-      } catch (error) {
-        console.log("Email sent (or failed silently):", error);
-      }
-    }
-    
-    // Generate a simple user session ID
-    function getUserId() {
-      let userId = localStorage.getItem('userId');
-      if (!userId) {
-        userId = 'User_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('userId', userId);
-      }
-      return userId;
-    }
-    
-    // Track visit count
-    function getVisitCount() {
-      let count = parseInt(localStorage.getItem('visitCount') || '0');
-      count++;
-      localStorage.setItem('visitCount', count);
-      return count;
-    }
-    
-    const userId = getUserId();
-    const visitCount = getVisitCount();
-    
-    // Send notification when page loads
-    window.addEventListener('load', () => {
-      const now = new Date().toLocaleString();
-      sendEmail(
-        '🔔 Website Opened!', 
-        `${userId} opened your website at ${now}\nVisit #${visitCount} from this person`
-      );
-    });
     
     // Position the No button initially next to Yes button
     function positionNoButton() {
@@ -132,8 +69,6 @@
     positionNoButton();
     window.addEventListener('resize', positionNoButton);
     
-    let noAttempts = 0;
-    
     function moveButton() {
       const maxX = window.innerWidth - noBtn.offsetWidth - 10;
       const maxY = window.innerHeight - noBtn.offsetHeight - 10;
@@ -143,22 +78,12 @@
       
       noBtn.style.left = `${x}px`;
       noBtn.style.top = `${y}px`;
-      
-      // Send email on first attempt to click No
-      noAttempts++;
-      if (noAttempts === 1) {
-        const now = new Date().toLocaleString();
-        sendEmail(
-          '😢 They tried to choose NO!', 
-          `${userId} tried to click "No" at ${now}\nChoice: NO (attempted)\nVisit #${visitCount}\n\nBut don't worry, they can't actually click it! 😊`
-        );
-      }
     }
     
     // For desktop: mouseover
     noBtn.addEventListener("mouseover", moveButton);
     
-    // For mobile: touchstart
+    // For mobile: touchstart (fires before click on mobile)
     noBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
       moveButton();
@@ -176,18 +101,9 @@
       moveButton();
     });
     
-    // Yes button - send notification and redirect
+    // Yes button - redirect to happy.html
     yesBtn.addEventListener("click", () => {
-      const now = new Date().toLocaleString();
-      sendEmail(
-        '💚 YES! They chose YES!', 
-        `${userId} clicked "Yes" at ${now}\nChoice: YES ✓\nVisit #${visitCount}\n\nEverything is good! 🎉💕`
-      );
-      
-      // Small delay to ensure email sends before redirect
-      setTimeout(() => {
-        window.location.href = "happy.html";
-      }, 1000);
+      window.location.href = "happy.html";
     });
   </script>
 </body>
