@@ -39,11 +39,21 @@
       background-color: #4caf50;
       color: white;
     }
+    #yesBtn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
     #noBtn {
       background-color: #f44336;
       color: white;
       position: fixed;
       transition: all 0.3s ease;
+    }
+    .loading {
+      display: none;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #666;
     }
   </style>
 </head>
@@ -54,6 +64,7 @@
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </div>
+    <div class="loading" id="loadingMsg">Sending notification...</div>
   </div>
 
   <!-- EmailJS SDK -->
@@ -64,6 +75,7 @@
     
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
+    const loadingMsg = document.getElementById("loadingMsg");
     
     // Position the No button initially next to Yes button
     function positionNoButton() {
@@ -107,23 +119,38 @@
       moveButton();
     });
     
-    // Yes button - send email and redirect
+    // Yes button - send email THEN redirect
     yesBtn.addEventListener("click", () => {
+      // Disable button to prevent double-clicks
+      yesBtn.disabled = true;
+      yesBtn.textContent = 'Sending...';
+      loadingMsg.style.display = 'block';
+      
+      console.log('Sending email notification...');
+      
       // Send email notification
       emailjs.send('service_tpgzsaq', 'template_0iqb4ga', {
         timestamp: new Date().toLocaleString(),
         user_agent: navigator.userAgent
       }).then(
         function(response) {
-          console.log('Email sent successfully!', response.status, response.text);
+          console.log('✅ Email sent successfully!', response.status, response.text);
+          
+          // Wait a moment then redirect
+          setTimeout(() => {
+            window.location.href = "happy.html";
+          }, 500);
         },
         function(error) {
-          console.log('Email failed to send:', error);
+          console.error('❌ Email failed:', error);
+          
+          // Still redirect even if email fails (optional - you can change this)
+          alert('Notification may not have sent, but continuing anyway...');
+          setTimeout(() => {
+            window.location.href = "happy.html";
+          }, 500);
         }
       );
-      
-      // Redirect to happy page
-      window.location.href = "happy.html";
     });
   </script>
 </body>
