@@ -64,7 +64,7 @@
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </div>
-    <div class="loading" id="loadingMsg">Sending notification...</div>
+    <div class="loading" id="loadingMsg">Wait, and don't get mad...</div>
   </div>
 
   <!-- EmailJS SDK -->
@@ -126,7 +126,7 @@
       yesBtn.textContent = 'Loading...';
       loadingMsg.style.display = 'block';
       
-      console.log('Wait and dont get mad...');
+      console.log('Sending Notification...');
       
       // Send email notification
       emailjs.send('service_tpgzsaq', 'template_0iqb4ga', {
