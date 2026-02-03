@@ -123,10 +123,10 @@
     yesBtn.addEventListener("click", () => {
       // Disable button to prevent double-clicks
       yesBtn.disabled = true;
-      yesBtn.textContent = 'Sending...';
+      yesBtn.textContent = 'Loading...';
       loadingMsg.style.display = 'block';
       
-      console.log('Sending email notification...');
+      console.log('Wait and dont get mad...');
       
       // Send email notification
       emailjs.send('service_tpgzsaq', 'template_0iqb4ga', {
